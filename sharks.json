@@ -1,0 +1,20 @@
+{
+    "sharks": [
+        {
+            "id": "2",
+            "name": "Greenland Shark",
+            "realName": "Somniosus microcephalus",
+            "description": "Greenland sharks are deep-sea creatures and endemic to the Arctic and North Atlantic. Their flesh has high levels of urea and TMAO that produces a natural antifreeze which allows them to live in cold waters between -1 to 10  degrees Celsius. Because of this, their flesh is poisonous. They’re consumed in Iceland but the meat has to be processed for months before it’s edible. Scientists have concluded that they are the longest-living vertebrate as seen from the sharks studied whose age ranged between 272 – 512 years. They reach sexual maturity at well over 100 years of age!",
+            "imageName": "greenlandshark",
+            "memeName": "greenlandmeme"
+        },
+        {
+            "id": "1",
+            "name": "Megamouth Shark",
+            "realName": "Megachasma pelagios",
+            "description": "Cute happy shark !",
+            "imageName": "megamouthshark",
+            "memeName": "megamouthmeme"
+        }
+    ]
+}
