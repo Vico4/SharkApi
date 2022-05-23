@@ -15,6 +15,14 @@
             "description": "Cute happy shark !",
             "imageName": "megamouthshark",
             "memeName": "megamouthmeme"
+        },
+        {
+            "id": "3",
+            "name": " Shark",
+            "realName": "Megachasma pelagios",
+            "description": "Megamouth sharks are one of three filter-feeding sharks, meaning they only eat plankton. Despite their large bathtub sized mouths that can swallow a whole person, they’re very docile and extremely rare. Their lower jaw protrudes and their mouths suck in everything while their gills act as a filter to expel the water inhaled. The maximum size recorded of a megamouth caught and released off the coast of California was 7.62m !",
+            "imageName": "megamouthshark",
+            "memeName": "megamouthmeme"
         }
     ]
 }
