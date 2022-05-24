@@ -77,21 +77,27 @@ func homeLink(w http.ResponseWriter, r *http.Request) {
 // 	json.NewEncoder(w).Encode(newshark)
 // }
 
-// func getOneshark(w http.ResponseWriter, r *http.Request) {
+func getOneshark(w http.ResponseWriter, r *http.Request) {
+	// on récup l'ID passé en paramètres
+	w.Header().Set("Content-Type", "application/json")
+	sharkID := mux.Vars(r)["id"]
+	var shark Shark 
+	
+	result, err := db.Query("SELECT id, name, scienceName, description, imageUrl, memeUrl from allSharks WHERE id = ?", sharkID)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer result.Close()
 
-// 	// on récup le json parsé dans parseJson
-// 	parseJson := parsingJson()
-// 	// on récup l'ID passé en paramètres
-// 	sharkID := mux.Vars(r)["id"]
+	for result.Next() {
+	err := result.Scan(&shark.ID, &shark.Name, &shark.ScienceName, &shark.Description, &shark.ImageURL, &shark.MemeURL)
+	if err != nil {
+		panic(err.Error())
+	}
+}
 
-// 	// avec une boucle for, on cherche le requin dont l'id correspond dans notre tableau de requins 
-// 	for _, singleshark := range parseJson.Allsharks {
-// 		if singleshark.ID == sharkID {
-// 			// on envoi le requin trouvé en réponse à la requête 
-// 			json.NewEncoder(w).Encode(singleshark)
-// 		}
-// 	}
-// }
+	json.NewEncoder(w).Encode(shark)
+}
 
 func getAllsharks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -201,30 +207,6 @@ func getList(w http.ResponseWriter, r *http.Request) {
 // 	}
 // }
 
-// func parsingJson() Allsharks {
-
-// 	// Open our jsonFile
-// 	jsonFile, err := os.Open("sharks.json")
-// 	// if we os.Open returns an error then handle it
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Successfully Opened sharks.json")
-// 	// defer the closing of our jsonFile so that we can parse it later on
-// 	defer jsonFile.Close()
-
-// 	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-// 	// we initialize our Users array
-// 	var sharks Allsharks
-// 	// we unmarshal our byteArray which contains our
-// 	// jsonFile's content into 'users' which we defined above
-// 	json.Unmarshal(byteValue, &sharks)
-// 	fmt.Println(sharks)
-
-// 	return sharks
-// }
-
 var db *sql.DB
 var err error
 
@@ -249,7 +231,7 @@ func main() {
 	// router.HandleFunc("/", homeLink)
 	// router.HandleFunc("/shark", createshark).Methods("POST")
 	router.HandleFunc("/sharks", getAllsharks).Methods("GET")
-	// router.HandleFunc("/sharks/{id}", getOneshark).Methods("GET")
+	router.HandleFunc("/sharks/{id}", getOneshark).Methods("GET")
 	router.HandleFunc("/sharklist", getList).Methods("GET")
 	// router.HandleFunc("/sharks/{id}", updateshark).Methods("PATCH")
 	// router.HandleFunc("/sharks/{id}", deleteshark).Methods("DELETE")
