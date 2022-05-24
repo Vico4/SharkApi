@@ -117,45 +117,30 @@ func getList(w http.ResponseWriter, r *http.Request) {
   json.NewEncoder(w).Encode(list)
 }
 
-// func updateshark(w http.ResponseWriter, r *http.Request) {
-// 	// on récup l'id passé en paramètes
-// 	sharkID := mux.Vars(r)["id"]
-// 	// on crée une variable updatedshark, destinée à recevoir un objet de type Shark
-// 	var updatedshark Shark
-	
-// 	parseJson := parsingJson()
+func updateshark(w http.ResponseWriter, r *http.Request) {
+	// on récup l'id passé en paramètes
+	sharkID := mux.Vars(r)["id"]
+	// on crée une variable updatedshark, destinée à recevoir un objet de type Shark
+	var shark Shark
+	// on récup le corps de la requête, en affichant une erreur si c'est mal formaté et on le 
+	// Unmarshal afin de le stocker dans notre variable updatedShark 
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Kindly enter data with the shark infos in order to update")
+	}
+	json.Unmarshal(reqBody, &shark)
 
-// 	// on récup le corps de la requête, en affichant une erreur si c'est mal formaté et on le 
-// 	// Unmarshal afin de le stocker dans notre variable updatedShark 
-// 	reqBody, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Kindly enter data with the shark infos in order to update")
-// 	}
-// 	json.Unmarshal(reqBody, &updatedshark)
+	stmt, err := db.Prepare("UPDATE allSharks SET name = ?, scienceName = ?, description = ?, imageUrl = ?, memeUrl = ? WHERE id = ?")
+	if err != nil {
+		panic(err.Error())
+	}
 
-// 	// une boucle for pour chercher le requin concerné et mettre à jour avec les infos d'updatedShark
-// 	for i, singleshark := range parseJson.Allsharks {
-// 		if singleshark.ID == sharkID {
-// 			singleshark.Name = updatedshark.Name
-// 			singleshark.Description = updatedshark.Description
-// 			// on modifie le tableau de requin avec le requin mis à jour 
-// 			parseJson.Allsharks = append(parseJson.Allsharks[:i], singleshark)
-// 			// on envoi en réponse le requin modifié 
-// 			json.NewEncoder(w).Encode(singleshark)
-// 		}
-// 	}
-
-// 	// afin de pouvoir l'écrire dans le Json, on Marshal notre parseJson 
-// 	modifJson, err := json.Marshal(parseJson)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	// on écrit notre modifJson (parseJson "marshalisé") dans le fichier sharks.json grace à ioutil 
-// 	err = ioutil.WriteFile("sharks.json", modifJson, 0644)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
+	_, err = stmt.Exec(shark.Name, shark.ScienceName, shark.Description, shark.ImageURL, shark.MemeURL, sharkID)
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Fprintf(w, "Shark was updated")
+}
 
 func deleteshark(w http.ResponseWriter, r *http.Request) {
 	
@@ -186,7 +171,7 @@ func main() {
 	router.HandleFunc("/sharks", getAllsharks).Methods("GET")
 	router.HandleFunc("/sharks/{id}", getOneshark).Methods("GET")
 	router.HandleFunc("/sharklist", getList).Methods("GET")
-	// router.HandleFunc("/sharks/{id}", updateshark).Methods("PATCH")
+	router.HandleFunc("/sharks/{id}", updateshark).Methods("PATCH")
 	router.HandleFunc("/sharks/{id}", deleteshark).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
