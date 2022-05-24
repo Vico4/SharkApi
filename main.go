@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	// "io/ioutil"
+	"io/ioutil"
 	"log"
 	"net/http"
 	// "os"
@@ -37,45 +37,23 @@ type Shortshark struct {
 }
 
 
-func homeLink(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome home!")
+func createshark(w http.ResponseWriter, r *http.Request) {
+	
+	requestBody, _ := ioutil.ReadAll(r.Body)
+	var shark Shark 
+
+	stmt, err := db.Prepare("INSERT INTO allSharks(name, scienceName, description, imageUrl, memeUrl) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	json.Unmarshal(requestBody, &shark)
+	_, err = stmt.Exec(shark.Name, shark.ScienceName, shark.Description, shark.ImageURL, shark.MemeURL)
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Fprintf(w, "New post was created")
 }
-
-// func createshark(w http.ResponseWriter, r *http.Request) {
-// 	// on déclare une variable de type Shark qui recevra les infos de notre nouveau requin 
-// 	var newshark Shark
-// 	// on récup de Json parsé 
-// 	parseJson := parsingJson()
-// 	// on récup le corps de la requête, en affichant une erreur si c'est mal formaté et on le 
-// 	// Unmarshal afin de le stocker dans notre variable newshark 
-// 	reqBody, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		fmt.Fprintf(w, "Kindly enter data with the shark informations in order to update")
-// 	}
-
-// 	json.Unmarshal(reqBody, &newshark)
-
-// 	// on ajoute newShark au tableau de requins dans notre objet parseJson 
-// 	// mais attention à ce stade là, rien n'est encore écrit dans notre fichier Json
-// 	parseJson.Allsharks = append(parseJson.Allsharks, newshark)
-
-// 	fmt.Println(parseJson)
-
-// 	// afin de pouvoir l'écrire dans le Json, on Marshal notre parseJson 
-// 	modifJson, err := json.Marshal(parseJson)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	// on écrit notre modifJson (parseJson "marshalisé") dans le fichier sharks.json grace à ioutil 
-// 	err = ioutil.WriteFile("sharks.json", modifJson, 0644)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	// on envoi le nouveau requin créé en réponse à la requête 
-// 	w.WriteHeader(http.StatusCreated)
-// 	json.NewEncoder(w).Encode(newshark)
-// }
 
 func getOneshark(w http.ResponseWriter, r *http.Request) {
 	// on récup l'ID passé en paramètres
@@ -219,17 +197,8 @@ func main() {
 	}
   defer db.Close()
 
-//   insert, err := db.Query("INSERT INTO allSharks(name) VALUES('Great White Shark')")
-//   if err != nil {
-//     panic(err.Error())
-//   }
-//   defer insert.Close()
-
-
-//	parseSharks := parsingJson()
 	router := mux.NewRouter().StrictSlash(true)
-	// router.HandleFunc("/", homeLink)
-	// router.HandleFunc("/shark", createshark).Methods("POST")
+	router.HandleFunc("/shark", createshark).Methods("POST")
 	router.HandleFunc("/sharks", getAllsharks).Methods("GET")
 	router.HandleFunc("/sharks/{id}", getOneshark).Methods("GET")
 	router.HandleFunc("/sharklist", getList).Methods("GET")
