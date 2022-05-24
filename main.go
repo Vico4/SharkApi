@@ -31,9 +31,9 @@ type List struct {
 }
 
 type Shortshark struct {
-	ID        string `json:"id"`
-	ImageName string `json:"imageName"`
-	Name      string `json:"name"`
+	ID        *string `json:"id"`
+	Name      *string `json:"name"`
+	ImageURL  *string `json:"imageUrl"`
 }
 
 
@@ -113,17 +113,25 @@ func getAllsharks(w http.ResponseWriter, r *http.Request) {
   json.NewEncoder(w).Encode(sharks)
 }
 
-// func getList(w http.ResponseWriter, r *http.Request) {
-// 	parseJson := parsingJson()
-// 	leng := len(parseJson.Allsharks)
-// 	vlist := make([]Shortshark, leng)
-// 	for i, singleshark := range parseJson.Allsharks {
-// 		vlist[i].Name = singleshark.Name
-// 		vlist[i].ID = singleshark.ID
-// 		vlist[i].ImageName = singleshark.ImageName
-// 	}
-// 	json.NewEncoder(w).Encode(vlist)
-// }
+func getList(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+  	var list []Shortshark
+  	result, err := db.Query("SELECT id, name, imageUrl from allSharks")
+  if err != nil {
+    panic(err.Error())
+  }
+  defer result.Close()
+
+  for result.Next() {
+    var shark Shortshark
+    err := result.Scan(&shark.ID, &shark.Name, &shark.ImageURL)
+    if err != nil {
+      panic(err.Error())
+    }
+    list = append(list, shark)
+  }
+  json.NewEncoder(w).Encode(list)
+}
 
 // func updateshark(w http.ResponseWriter, r *http.Request) {
 // 	// on récup l'id passé en paramètes
@@ -242,7 +250,7 @@ func main() {
 	// router.HandleFunc("/shark", createshark).Methods("POST")
 	router.HandleFunc("/sharks", getAllsharks).Methods("GET")
 	// router.HandleFunc("/sharks/{id}", getOneshark).Methods("GET")
-	// router.HandleFunc("/sharklist", getList).Methods("GET")
+	router.HandleFunc("/sharklist", getList).Methods("GET")
 	// router.HandleFunc("/sharks/{id}", updateshark).Methods("PATCH")
 	// router.HandleFunc("/sharks/{id}", deleteshark).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
