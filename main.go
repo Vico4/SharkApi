@@ -130,7 +130,7 @@ func updateshark(w http.ResponseWriter, r *http.Request) {
 			singleshark.Name = updatedshark.Name
 			singleshark.Description = updatedshark.Description
 			// on modifie le tableau de requin avec le requin mis à jour 
-			parseJson.Allsharks = append(parseJson.Allsharks[:i], singleshark)
+			parseJson.Allsharks[i] = singleshark
 			// on envoi en réponse le requin modifié 
 			json.NewEncoder(w).Encode(singleshark)
 		}
